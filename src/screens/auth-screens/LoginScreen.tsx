@@ -30,7 +30,7 @@ const LoginScreen = (props: LoginScreenProps) => {
       {/* Title */}
       <Text style={styles.title}>Log in</Text>
       <Text style={styles.subtitle}>
-        Welcome back! Log in to resume your reading journey.
+        Welcome back! Log in to access your smart door.
       </Text>
 
       {/* Email */}
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   createBtn: {
-    backgroundColor: "#28a745",
+    backgroundColor: "#7b5cff",
     height: 50,
     borderRadius: 10,
     justifyContent: "center",
@@ -154,13 +154,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   forgotBtn:{
-    color: "#28a745",
+    color: "#7b5cff",
     marginTop: 5,
     alignSelf: 'flex-end',
   },
   forgotBtnText:{
     fontSize: 14,
-    color: "#28a745",
+    color: "#7b5cff",
   },
   createBtnText: {
     color: "#fff",
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   loginText: {
-    color: "#28a745",
+    color: "#7b5cff",
     fontWeight: "600",
   },
   orContainer: {

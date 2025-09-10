@@ -29,7 +29,7 @@ const RegisterScreen = (props: RegisterScreenProps) => {
       {/* Title */}
       <Text style={styles.title}>Create your account</Text>
       <Text style={styles.subtitle}>
-        Create an account and explore a tailored library of captivating stories.
+        Sign up to unlock your door with just a look.
       </Text>
 
       {/* Email */}
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   createBtn: {
-    backgroundColor: "#28a745",
+    backgroundColor: "#7b5cff",
     height: 50,
     borderRadius: 10,
     justifyContent: "center",
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   loginText: {
-    color: "#28a745",
+    color: "#7b5cff",
     fontWeight: "600",
   },
   orContainer: {

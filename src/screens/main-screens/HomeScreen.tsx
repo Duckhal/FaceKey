@@ -10,12 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
-
-const doors = [
-  { id: "1", name: "Main Door" },
-  { id: "2", name: "Back Door" },
-  { id: "3", name: "Garage Door" },
-];
+import { doors } from "../../constants/doors";
 
 const HomeScreen = () => {
   const handleOpenDoor = (doorId: string) => {

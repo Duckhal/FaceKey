@@ -11,13 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import Lucide from "@react-native-vector-icons/lucide";
-
-const users = [
-  { id: "1", name: "Nguyen Van A" },
-  { id: "2", name: "Tran Thi B" },
-  { id: "3", name: "Le Van C" },
-  { id: "4", name: "Pham Van D" },
-];
+import { logs } from "../../constants/logs";
 
 const LogScreen = () => {
   const renderItem = ({ item }: { item: { id: string; name: string } }) => (
@@ -43,7 +37,7 @@ const LogScreen = () => {
       {/* Content */}
       <View style={styles.content}>
         <FlatList
-          data={users}
+          data={logs}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           ItemSeparatorComponent={() => (

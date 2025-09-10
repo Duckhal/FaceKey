@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Entypo from '@react-native-vector-icons/entypo';
 import Feather from '@react-native-vector-icons/feather';
 import Fontisto from '@react-native-vector-icons/fontisto';
+import Lucide from '@react-native-vector-icons/lucide';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type AuthStackParamList = {
@@ -27,7 +28,7 @@ export default function IntroScreen({ navigation }: IntroScreenProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.appName}>
-        <Entypo name="book" color="#008000" size={40} /> FaceKey
+        <Lucide name="scan-face" color="#7b5cff" size={40} /> FaceKey
       </Text>
     </View>
   )
@@ -43,7 +44,7 @@ const styles = StyleSheet.create({
   appName: {
     fontWeight: 'bold',
     fontSize: 40,
-    color: '#008000', 
+    color: '#7b5cff', 
   },
 })
 
