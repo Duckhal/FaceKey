@@ -1,0 +1,51 @@
+export const recommendedBooks = [
+  {
+    id: "1",
+    title: "I Want a Better Catastrophe",
+    author: "Andrew Boyd",
+    image: "https://picsum.photos/200/300?1",
+    tag: "Fiction",
+  },
+  {
+    id: "2",
+    title: "The Midnight Library",
+    author: "Matt Haig",
+    image: "https://picsum.photos/200/300?2",
+    tag: "Fiction",
+  },
+  {
+    id: "3",
+    title: "Atomic Habits",
+    author: "James Clear",
+    image: "https://picsum.photos/200/300?3",
+    tag: "Self-help",
+  },
+  {
+    id: "4",
+    title: "Sapiens: A Brief History of Humankind",
+    author: "Yuval Noah Harari",
+    image: "https://picsum.photos/200/300?4",
+    tag: "History",
+  },
+  {
+    id: "5",
+    title: "Educated",
+    author: "Tara Westover",
+    image: "https://picsum.photos/200/300?5",
+    tag: "Memoir",
+  },
+  {
+    id: "6",
+    title: "The Pragmatic Programmer",
+    author: "Andrew Hunt & David Thomas",
+    image: "https://picsum.photos/200/300?6",
+    tag: "Technology",
+  },
+  {
+    id: "7",
+    title: "Thinking, Fast and Slow",
+    author: "Daniel Kahneman",
+    image: "https://picsum.photos/200/300?7",
+    tag: "Psychology",
+  },
+];
