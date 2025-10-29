@@ -82,7 +82,16 @@ const MemberScreen = () => {
         } else if (response.errorCode) {
           console.error("Lỗi camera: ", response.errorMessage);
         } else if (response.assets && response.assets.length > 0) {
-          setPhoto(response.assets[0].uri || null);
+          const uri = response.assets[0].uri;
+          setPhoto(uri || null);
+
+          setSelectedUser({
+            id: Date.now().toString(),
+            name: "",
+            role: "",
+            avatar: uri,
+          });
+          setModalVisible(true);
         }
       }
     );
@@ -93,6 +102,23 @@ const MemberScreen = () => {
     setSelectedUser(user);
     setModalVisible(true);
   };
+
+  // CRUD danh sách người dùng
+  const [userList, setUserList] = useState(users);
+
+  const addUser = (user: any) => {
+    setUserList([...userList, user]);
+  }
+
+  const updateUser = (updatedUser: any) => {
+    setUserList(
+      userList.map((user) =>  user.id === updatedUser.id ? updatedUser : user)
+    );
+  }
+
+  const deleteUser = (userId: string) => {
+    setUserList(userList.filter((user) => user.id !== userId));
+  }
 
   const renderItem = ({ item }: { item: { id: string; name: string; role: string, avatar: string } }) => (
     <TouchableOpacity
@@ -121,17 +147,17 @@ const MemberScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Nếu có ảnh chụp thì hiển thị */}
+      {/* Nếu có ảnh chụp thì hiển thị
       {photo && (
         <View style={{ alignItems: "center", marginVertical: 10 }}>
           <Image source={{ uri: photo }} style={{ width: 200, height: 200, borderRadius: 10 }} />
         </View>
-      )}
+      )} */}
 
       {/* Content */}
       <View style={styles.content}>
         <FlatList
-          data={users}
+          data={userList}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           ItemSeparatorComponent={() => (
@@ -175,13 +201,22 @@ const MemberScreen = () => {
                 <View style={styles.modalOption}>
                   <TouchableOpacity
                   style={styles.deleteBtn}
-                  onPress={() => setModalVisible(false)}
+                  onPress={() => {
+                    deleteUser(selectedUser.id);
+                    setModalVisible(false);}}
                   >
                     <Text style={styles.closeText}>Delete</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                   style={styles.saveBtn}
-                  onPress={() => setModalVisible(false)}
+                  onPress={() => {
+                    if (users.find(user => user.id === selectedUser.id)) {
+                      updateUser(selectedUser);
+                    } else {
+                      addUser(selectedUser);
+                    }
+                    setModalVisible(false);
+                  }}
                   >
                     <Text style={styles.closeText}>Save</Text>
                   </TouchableOpacity>

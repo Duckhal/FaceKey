@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from '@react-native-vector-icons/feather';
+import axios from "axios";
+import { Alert } from "react-native";
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -20,9 +22,24 @@ type RegisterScreenProps = NativeStackScreenProps<AuthStackParamList, "Register"
 
 const RegisterScreen = (props: RegisterScreenProps) => {
   const { navigation, route } = props;
+  const [ username, setUsername ] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [secureText, setSecureText] = useState(true);
+
+  const handleRegister = async () => {
+    try {
+      const response = await axios.post('http://121.11.3.167:3000/auth/register', {
+        username,
+        email,
+        password,
+    });
+      Alert.alert('Registration Successful', 'You can now log in with your credentials.');
+      navigation.navigate('Login');
+    } catch (error) {
+      Alert.alert('Registration Failed', 'Email may already be in use. Please try again.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -31,6 +48,17 @@ const RegisterScreen = (props: RegisterScreenProps) => {
       <Text style={styles.subtitle}>
         Sign up to unlock your door with just a look.
       </Text>
+
+      {/* Username */}
+      <TextInput
+        style={styles.input}
+        placeholder="Username"
+        placeholderTextColor='#9b9b9bff'
+        keyboardType="email-address"
+        autoCapitalize="none"
+        value={username}
+        onChangeText={setUsername}
+      />
 
       {/* Email */}
       <TextInput
@@ -62,12 +90,12 @@ const RegisterScreen = (props: RegisterScreenProps) => {
       </View>
 
       {/* Button Create Account */}
-      <TouchableOpacity style={styles.createBtn}>
+      <TouchableOpacity 
+      style={styles.createBtn}
+      onPress={() => handleRegister()}>
         <Text 
           style={styles.createBtnText}
-          onPress={() => {
-            navigation.navigate('Login')
-          }}>Create new account</Text>
+        >Create new account</Text>
       </TouchableOpacity>
 
       {/* Login link */}

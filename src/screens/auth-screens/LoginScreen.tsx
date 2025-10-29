@@ -8,6 +8,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from '@react-native-vector-icons/feather';
+import axios from "axios";
+import { Alert } from "react-native";
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -24,6 +26,24 @@ const LoginScreen = (props: LoginScreenProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [secureText, setSecureText] = useState(true);
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://121.11.3.167:3000/auth/login', {
+        email,
+        password,
+      });
+
+      if(response.data.token){
+        // Lưu token
+        navigation.navigate('Main');
+      } else {
+        Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
+      }
+    } catch (error) {
+      Alert.alert('Login Failed', 'Cannot connect to server or invalid credentials.');
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -72,7 +92,7 @@ const LoginScreen = (props: LoginScreenProps) => {
       {/* Button Create Account */}
       <TouchableOpacity 
         style={styles.createBtn}
-        onPress={() => navigation.navigate('Main')}>
+        onPress={() => handleLogin()}>
         <Text style={styles.createBtnText}>Log in</Text>
       </TouchableOpacity>
 
