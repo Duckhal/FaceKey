@@ -29,15 +29,14 @@ const LoginScreen = (props: LoginScreenProps) => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://121.11.3.167:3000/auth/login', {
+      const response = await axios.post('http://192.168.145.16:3000/auth/login', {
         email,
         password,
       });
-
-      if(response.data.token){
-        // Lưu token
+      if(response.data.accessToken){
         navigation.navigate('Main');
       } else {
+        console.log("Login Failed");
         Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
       }
     } catch (error) {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,16 +11,51 @@ import {
   Alert,
   Modal,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
-import { users } from "../../constants/users";
 import { launchCamera } from "react-native-image-picker";
+import axios from "axios";
+
+interface Member {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+}
 
 const MemberScreen = () => {
   const [photo, setPhoto] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [userList, setUserList] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchMembers();
+  }, []);
+
+  const fetchMembers = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`http://192.168.145.16:3000/members`);
+
+      if (Array.isArray(response.data)) {
+        setUserList(response.data);
+      } else {
+        console.error("API /members không trả về một mảng!");
+        setUserList([]);
+      }
+
+    } catch (err) {
+      console.error("Error loading member list", err);
+      Alert.alert("Error","Unable to load member list");
+
+      setUserList([]);
+    }
+    setLoading(false);
+  }
 
   // Yêu cầu quyền Camera cho Android
   const requestCameraPermission = async () => {
@@ -29,11 +64,11 @@ const MemberScreen = () => {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.CAMERA,
           {
-            title: "Quyền Camera",
-            message: "Ứng dụng cần quyền truy cập Camera để chụp ảnh.",
-            buttonNeutral: "Hỏi lại sau",
-            buttonNegative: "Hủy",
-            buttonPositive: "Đồng ý",
+            title: "Camera Permissions",
+            message: "The app needs Camera access to take photos",
+            buttonNeutral: "Ask again later",
+            buttonNegative: "Cancel",
+            buttonPositive: "Agree",
           }
         );
         return granted === PermissionsAndroid.RESULTS.GRANTED;
@@ -46,22 +81,22 @@ const MemberScreen = () => {
   };
 
   // Hàm mở Camera
-  const openCamera = async () => {
+  const openCamera = async (isForUpdate: boolean = false) => {
     if (Platform.OS === "android") {
       try {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.CAMERA,
           {
-            title: "Quyền Camera",
-            message: "Ứng dụng cần quyền truy cập Camera để chụp ảnh.",
-            buttonNeutral: "Hỏi lại sau",
-            buttonNegative: "Hủy",
-            buttonPositive: "Đồng ý",
+            title: "Camera Permissions",
+            message: "The app needs Camera access to take photos",
+            buttonNeutral: "Ask again later",
+            buttonNegative: "Cancel",
+            buttonPositive: "Agree",
           }
         );
 
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          Alert.alert("Thông báo", "Bạn chưa cấp quyền Camera!");
+          Alert.alert("Notification", "You have not granted Camera permission");
           return;
         }
       } catch (err) {
@@ -78,20 +113,28 @@ const MemberScreen = () => {
       },
       (response) => {
         if (response.didCancel) {
-          console.log("Người dùng hủy chụp ảnh");
+          console.log("User cancelled taking photo");
         } else if (response.errorCode) {
-          console.error("Lỗi camera: ", response.errorMessage);
+          console.error("Camera error: ", response.errorMessage);
         } else if (response.assets && response.assets.length > 0) {
           const uri = response.assets[0].uri;
-          setPhoto(uri || null);
-
-          setSelectedUser({
-            id: Date.now().toString(),
-            name: "",
-            role: "",
-            avatar: uri,
-          });
-          setModalVisible(true);
+          
+          if (isForUpdate && selectedUser) {
+            // 1. NẾU LÀ UPDATE: Chỉ cập nhật avatar của user đang chọn
+            setSelectedUser({
+              ...selectedUser,
+              avatar: uri,
+            });
+          } else {
+            // 2. NẾU LÀ THÊM MỚI: Tạo user mới và mở modal
+            setSelectedUser({
+              id: Date.now().toString(),
+              name: "",
+              role: "",
+              avatar: uri,
+            });
+            setModalVisible(true);
+          }
         }
       }
     );
@@ -103,24 +146,115 @@ const MemberScreen = () => {
     setModalVisible(true);
   };
 
-  // CRUD danh sách người dùng
-  const [userList, setUserList] = useState(users);
+  const handleAddMember = async () => {
+    if(!selectedUser || !selectedUser.name || !selectedUser.avatar) {
+      Alert.alert("Please enter your name and take a photo");
+      return;
+    }
 
-  const addUser = (user: any) => {
-    setUserList([...userList, user]);
+    setLoading(true);
+    const formData = new FormData();
+
+    formData.append('name', selectedUser.name);
+    formData.append('role', selectedUser.role || 'Member');
+    formData.append('file',{
+      uri: selectedUser.avatar,
+      type: 'image/jpeg',
+      name: `face-${Date.now()}.jpg`,
+    });
+
+    try {
+      const response = await axios.post(`http://192.168.145.16:3000/members/register-face`, formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      fetchMembers();
+      Alert.alert("Success", "Registered Successfully");
+    } catch (err) {
+      console.error("Unable to register, please try again", err);
+      Alert.alert("Error", "Unable to register, please try again");
+    }
+
+    setLoading(false);
+    setModalVisible(false);
   }
 
-  const updateUser = (updatedUser: any) => {
-    setUserList(
-      userList.map((user) =>  user.id === updatedUser.id ? updatedUser : user)
+const handleUpdateMember = async () => {
+    if (!selectedUser || !selectedUser.id) {
+        Alert.alert("Error", "user's ID is not identified");
+        return;
+    }
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append('name', selectedUser.name);
+    formData.append('role', selectedUser.role);
+
+    if (selectedUser.avatar && selectedUser.avatar.startsWith('file://')) {
+        formData.append('file', {
+            uri: selectedUser.avatar,
+            type: 'image/jpeg',
+            name: `face-${Date.now()}.jpg`,
+        });
+    }
+
+    try {
+        const response = await axios.patch(
+            `http://192.168.145.16:3000/members/update/${selectedUser.id}`, 
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            }
+        );
+
+        await fetchMembers();
+        Alert.alert("Success", "Changed Successfully");
+        
+        setLoading(false);
+        setModalVisible(false);
+
+    } catch (err) {
+        console.error("Unable to change, please try again", err);
+        Alert.alert("Error", "Unable to change, please try again");
+        setLoading(false);
+    }
+  }
+
+  const handleDeleteMember = async (userId : string) => {
+    Alert.alert(
+      "You are about to remove this member's permission",
+      "Do you wish to continue?",
+      [
+        { text: "Cancel"},
+        {
+          text: "Yes",
+          onPress: async () => {
+            setLoading(true);
+            try {
+              await axios.delete(`http://192.168.145.16:3000/members/delete/${userId}`);
+
+              setUserList(userList.filter((user) => user.id !== userId));
+              Alert.alert("Success", "Removed Successfully");
+            } catch (err) {
+              console.error("Error", "Falied to remove");
+              Alert.alert("Error", "Falied to remove");
+            }
+            setLoading(false);
+            setModalVisible(false);
+          },
+          style: "destructive"
+        }
+      ]
     );
-  }
+  };
 
-  const deleteUser = (userId: string) => {
-    setUserList(userList.filter((user) => user.id !== userId));
-  }
-
-  const renderItem = ({ item }: { item: { id: string; name: string; role: string, avatar: string } }) => (
+  const renderItem = ({ item }: { item: Member }) => (
     <TouchableOpacity
       style={styles.userItem}
       onPress={() => openPopup(item)}
@@ -142,28 +276,25 @@ const MemberScreen = () => {
           <Ionicons name="menu" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Member</Text>
-        <TouchableOpacity style={styles.addBtn} onPress={openCamera}>
+        <TouchableOpacity style={styles.addBtn} onPress={() => openCamera(false)}>
           <Ionicons name="add" size={28} color="#fff" />
         </TouchableOpacity>
       </View>
 
-      {/* Nếu có ảnh chụp thì hiển thị
-      {photo && (
-        <View style={{ alignItems: "center", marginVertical: 10 }}>
-          <Image source={{ uri: photo }} style={{ width: 200, height: 200, borderRadius: 10 }} />
-        </View>
-      )} */}
-
       {/* Content */}
       <View style={styles.content}>
+        {loading ? (
+          <ActivityIndicator size="large" color="#FFFFFF" style={{ marginTop: 50 }} />
+        ): (
         <FlatList
           data={userList}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           ItemSeparatorComponent={() => (
             <View style={{ height: 1, backgroundColor: "#333", marginLeft: 60 }} />
           )}
         />
+        )}
       </View>
 
       {/* Modal popup */}
@@ -183,7 +314,15 @@ const MemberScreen = () => {
                 >
                   <Ionicons name="close-outline" size={24} color="#333" />
                 </TouchableOpacity>
-                <Image source={{ uri: selectedUser.avatar }} style={styles.modalAvatar} />
+                <View style={styles.avatarContainer}>
+                  <Image source={{ uri: selectedUser.avatar }} style={styles.modalAvatar} />
+                  <TouchableOpacity
+                    style={styles.cameraIcon}
+                    onPress={() => openCamera(true)} 
+                  >
+                    <Ionicons name="camera-outline" size={24} color="#222" />
+                  </TouchableOpacity>
+                </View>
                 <TextInput
                   style={styles.modalInput}
                   value={selectedUser.name}
@@ -202,20 +341,19 @@ const MemberScreen = () => {
                   <TouchableOpacity
                   style={styles.deleteBtn}
                   onPress={() => {
-                    deleteUser(selectedUser.id);
-                    setModalVisible(false);}}
+                    handleDeleteMember(selectedUser.id);
+                  }}
                   >
                     <Text style={styles.closeText}>Delete</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                   style={styles.saveBtn}
                   onPress={() => {
-                    if (users.find(user => user.id === selectedUser.id)) {
-                      updateUser(selectedUser);
+                    if (userList.find(user => user.id === selectedUser.id)) {
+                      handleUpdateMember();
                     } else {
-                      addUser(selectedUser);
+                      handleAddMember();
                     }
-                    setModalVisible(false);
                   }}
                   >
                     <Text style={styles.closeText}>Save</Text>
@@ -303,11 +441,27 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: "center",
   },
-  modalAvatar: {
+  avatarContainer: {
+    position: 'relative',
     width: 80,
     height: 80,
     borderRadius: 40,
     marginBottom: 15,
+  },
+  cameraIcon: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: '#bbb',
+    borderRadius: 15,
+    padding: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalAvatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
   modalInput: {
     width: "100%",
