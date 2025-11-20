@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from '@react-native-vector-icons/feather';
 import axios from "axios";
 import { Alert } from "react-native";
+import { API_URL } from "../../constants/Config";
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -28,20 +29,21 @@ const LoginScreen = (props: LoginScreenProps) => {
   const [secureText, setSecureText] = useState(true);
 
   const handleLogin = async () => {
-    try {
-      const response = await axios.post('http://192.168.145.16:3000/auth/login', {
-        email,
-        password,
-      });
-      if(response.data.accessToken){
-        navigation.navigate('Main');
-      } else {
-        console.log("Login Failed");
-        Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
-      }
-    } catch (error) {
-      Alert.alert('Login Failed', 'Cannot connect to server or invalid credentials.');
-    }
+    // try {
+    //   const response = await axios.post(`${API_URL}/auth/login`, {
+    //     email,
+    //     password,
+    //   });
+    //   if(response.data.accessToken){
+    //     navigation.navigate('Main');
+    //   } else {
+    //     console.log("Login Failed");
+    //     Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
+    //   }
+    // } catch (error) {
+    //   Alert.alert('Login Failed', 'Cannot connect to server or invalid credentials.');
+    // }
+    navigation.navigate('Main');
   }
 
   return (

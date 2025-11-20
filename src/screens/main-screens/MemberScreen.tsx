@@ -17,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { launchCamera } from "react-native-image-picker";
 import axios from "axios";
+import { API_URL } from "../../constants/Config";
 
 interface Member {
   id: string;
@@ -39,12 +40,13 @@ const MemberScreen = () => {
   const fetchMembers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://192.168.145.16:3000/members`);
+      const response = await axios.get(`${API_URL}/members`);
+      console.log("Dữ liệu nhận được:", JSON.stringify(response.data, null, 2));
 
       if (Array.isArray(response.data)) {
         setUserList(response.data);
       } else {
-        console.error("API /members không trả về một mảng!");
+        console.error("The /members API does not return an array");
         setUserList([]);
       }
 
@@ -120,13 +122,11 @@ const MemberScreen = () => {
           const uri = response.assets[0].uri;
           
           if (isForUpdate && selectedUser) {
-            // 1. NẾU LÀ UPDATE: Chỉ cập nhật avatar của user đang chọn
             setSelectedUser({
               ...selectedUser,
               avatar: uri,
             });
           } else {
-            // 2. NẾU LÀ THÊM MỚI: Tạo user mới và mở modal
             setSelectedUser({
               id: Date.now().toString(),
               name: "",
@@ -164,7 +164,7 @@ const MemberScreen = () => {
     });
 
     try {
-      const response = await axios.post(`http://192.168.145.16:3000/members/register-face`, formData,
+      const response = await axios.post(`${API_URL}/members/register-face`, formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -204,7 +204,7 @@ const handleUpdateMember = async () => {
 
     try {
         const response = await axios.patch(
-            `http://192.168.145.16:3000/members/update/${selectedUser.id}`, 
+            `${API_URL}/members/update/${selectedUser.id}`, 
             formData,
             {
                 headers: {
@@ -237,7 +237,7 @@ const handleUpdateMember = async () => {
           onPress: async () => {
             setLoading(true);
             try {
-              await axios.delete(`http://192.168.145.16:3000/members/delete/${userId}`);
+              await axios.delete(`${API_URL}/members/delete/${userId}`);
 
               setUserList(userList.filter((user) => user.id !== userId));
               Alert.alert("Success", "Removed Successfully");
@@ -272,9 +272,9 @@ const handleUpdateMember = async () => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        {/* <TouchableOpacity>
           <Ionicons name="menu" size={24} color="#fff" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <Text style={styles.headerTitle}>Member</Text>
         <TouchableOpacity style={styles.addBtn} onPress={() => openCamera(false)}>
           <Ionicons name="add" size={28} color="#fff" />
@@ -379,8 +379,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingTop: 15,
+    paddingBottom: 10,
     alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: '#333'
   },
   headerTitle: {
     color: "#fff",

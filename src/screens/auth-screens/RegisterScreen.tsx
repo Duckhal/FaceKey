@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from '@react-native-vector-icons/feather';
 import axios from "axios";
 import { Alert } from "react-native";
+import { API_URL } from "../../constants/Config";
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -29,7 +30,7 @@ const RegisterScreen = (props: RegisterScreenProps) => {
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post('http://121.11.3.167:3000/auth/register', {
+      const response = await axios.post(`${API_URL}/auth/register`, {
         username,
         email,
         password,

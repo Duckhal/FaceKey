@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { doors } from "../../constants/doors";
+import { API_URL } from "../../constants/Config";
 
 const HomeScreen = () => {
   const handleOpenDoor = (doorId: string) => {
@@ -35,9 +36,9 @@ const HomeScreen = () => {
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        {/* <TouchableOpacity>
           <Ionicons name="menu" size={24} color="#fff" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <Text style={styles.headerTitle}>Home</Text>
         <TouchableOpacity>
           <Image
@@ -73,8 +74,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingTop: 15,
+    paddingBottom: 10,
     alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: '#333'
   },
   headerTitle: {
     color: "#fff",

@@ -9,14 +9,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
+import { API_URL } from "../../constants/Config";
 
 const profileData = [
   { id: "1", title: "Thông tin cá nhân", icon: "person-circle-outline" },
-  { id: "2", title: "Quản lý khuôn mặt", icon: "happy-outline" },
-  { id: "3", title: "Lịch sử truy cập", icon: "time-outline" },
-  { id: "4", title: "Thiết bị liên kết", icon: "hardware-chip-outline" },
-  { id: "5", title: "Cài đặt", icon: "settings-outline" },
-  { id: "6", title: "Đăng xuất", icon: "log-out-outline" },
+  { id: "2", title: "Thiết bị liên kết", icon: "hardware-chip-outline" },
+  { id: "3", title: "Cài đặt", icon: "settings-outline" },
+  { id: "4", title: "Đăng xuất", icon: "log-out-outline" },
 ];
 
 const ProfileScreen = () => {
@@ -63,10 +62,14 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#121212" },
   header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingTop: 15,
+    paddingBottom: 10,
+    alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: "#333",
+    borderBottomColor: '#333'
   },
   headerTitle: { fontSize: 18, fontWeight: "600", color: "#fff" },
   profileInfo: { alignItems: "center", marginVertical: 20 },
