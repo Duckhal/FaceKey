@@ -11,8 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
-import axios from "axios";
-import { API_URL } from "../../constants/Config";
+import api from "../../services/api";
 import LogItem, { AccessLog } from "../../components/LogItem";
 
 const LogScreen = () => {
@@ -26,7 +25,7 @@ const LogScreen = () => {
 
   const fetchLogs = async () => {
     try {
-      const response = await axios.get(`${API_URL}/accesslogs`);
+      const response = await api.get(`/accesslogs`);
       setLogs(response.data);
     } catch (error) {
       console.error("Error when getting logs:", error);
@@ -47,7 +46,7 @@ const LogScreen = () => {
           onPress: async () => {
             setLoading(true);
             try {
-              await axios.delete(`${API_URL}/accesslogs/clear`);
+              await api.delete(`/accesslogs/clear`);
               setLogs([]);
               Alert.alert("Success", "Cleared history");
             } catch (error) {

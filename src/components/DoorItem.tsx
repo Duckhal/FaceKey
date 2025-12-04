@@ -6,7 +6,7 @@ import Ionicons from "@react-native-vector-icons/ionicons";
 export interface Door {
   id: string;
   name: string;
-  // Bạn có thể thêm status: 'locked' | 'unlocked' vào đây sau này
+  //  status: 'locked' | 'unlocked'
 }
 
 interface DoorItemProps {
@@ -41,9 +41,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
-    // Bạn có thể thêm border bottom nhẹ ở đây nếu muốn thay thế ItemSeparatorComponent
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#333'
   },
   doorName: {
     color: "#fff",

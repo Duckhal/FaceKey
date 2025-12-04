@@ -10,7 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from '@react-native-vector-icons/feather';
 import axios from "axios";
 import { Alert } from "react-native";
-import { API_URL } from "../../constants/Config";
+import api from "../../services/api";
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -29,8 +29,12 @@ const RegisterScreen = (props: RegisterScreenProps) => {
   const [secureText, setSecureText] = useState(true);
 
   const handleRegister = async () => {
+    if (!username || !email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
     try {
-      const response = await axios.post(`${API_URL}/auth/register`, {
+      const response = await api.post(`/auth/register`, {
         username,
         email,
         password,
@@ -81,6 +85,7 @@ const RegisterScreen = (props: RegisterScreenProps) => {
           secureTextEntry={secureText}
           value={password}
           onChangeText={setPassword}
+          autoCapitalize="none"
         />
         <TouchableOpacity
           onPress={() => setSecureText(!secureText)}
@@ -164,6 +169,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     paddingHorizontal: 12,
+    color: "#000"
   },
   eyeIcon: {
     paddingHorizontal: 12,

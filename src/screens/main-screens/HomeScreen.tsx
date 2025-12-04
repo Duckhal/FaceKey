@@ -1,29 +1,47 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   FlatList,
   RefreshControl
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { doors } from "../../constants/doors";
 import DoorItem from "../../components/DoorItem";
 
 const HomeScreen = () => {
-  const [refreshing, setRefreshing] = React.useState(false);
-  
-  // Hàm xử lý logic mở cửa
+  const [refreshing, setRefreshing] = useState(false);
+  const [userInitial, setUserInitial] = useState("?");
+  useEffect(() => {
+    loadUserInitial();
+  }, []);
+
+  const loadUserInitial = async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem('userInfo');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        if (user.username) {
+          // Uppercase the first letter of the username
+          setUserInitial(user.username.charAt(0).toUpperCase());
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load user info in Home", e);
+    }
+  };
+
   const handleOpenDoor = (doorId: string) => {
     console.log(`Request Open door: ${doorId}`);
-    // Code gọi API service sẽ đặt ở đây
-    // await doorService.openDoor(doorId);
+    // Code to call API service
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
+    await loadUserInitial();
     setRefreshing(false);
   };
 
@@ -33,10 +51,9 @@ const HomeScreen = () => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Home</Text>
         <TouchableOpacity>
-          <Image
-            source={{ uri: "https://i.pravatar.cc/150?img=3" }}
-            style={styles.avatar}
-          />
+          <View style={styles.avatarContainer}>
+            <Text style={styles.avatarText}>{userInitial}</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -90,10 +107,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
   },
-  avatar: {
+  avatarContainer: {
     width: 35,
     height: 35,
-    borderRadius: 20,
+    borderRadius: 17.5,
+    backgroundColor: '#7b5cff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#eee'
+  },
+  avatarText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   content: {
     flex: 1,

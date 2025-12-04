@@ -8,9 +8,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from '@react-native-vector-icons/feather';
-import axios from "axios";
 import { Alert } from "react-native";
-import { API_URL } from "../../constants/Config";
+import api from "../../services/api";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -28,23 +28,37 @@ const LoginScreen = (props: LoginScreenProps) => {
   const [password, setPassword] = useState("");
   const [secureText, setSecureText] = useState(true);
 
-  const handleLogin = async () => {
-    // try {
-    //   const response = await axios.post(`${API_URL}/auth/login`, {
-    //     email,
-    //     password,
-    //   });
-    //   if(response.data.accessToken){
-    //     navigation.navigate('Main');
-    //   } else {
-    //     console.log("Login Failed");
-    //     Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
-    //   }
-    // } catch (error) {
-    //   Alert.alert('Login Failed', 'Cannot connect to server or invalid credentials.');
-    // }
-    navigation.navigate('Main');
+const handleLogin = async () => {
+  if (!email || !password) {
+    Alert.alert('Error', 'Please enter email and password');
+    return;
   }
+
+  try {
+    const response = await api.post(`/auth/login`, {
+      email,
+      password,
+    });
+    const { access_token, user } = response.data;
+
+    if (access_token) {
+      await AsyncStorage.setItem('userToken', access_token);
+      await AsyncStorage.setItem('userInfo', JSON.stringify(user));
+      console.log("Login Success:", user);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
+      // navigation.navigate('Main');
+    } else {
+      Alert.alert('Login Failed', 'No access token received');
+    }
+
+  } catch (error) {
+    console.error("Login Error:", error);
+    Alert.alert('Login Failed', 'Invalid email or password.');
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -74,6 +88,7 @@ const LoginScreen = (props: LoginScreenProps) => {
           secureTextEntry={secureText}
           value={password}
           onChangeText={setPassword}
+          autoCapitalize="none"
         />
         <TouchableOpacity
           onPress={() => setSecureText(!secureText)}
@@ -162,6 +177,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     paddingHorizontal: 12,
+    color: "#000"
   },
   eyeIcon: {
     paddingHorizontal: 12,

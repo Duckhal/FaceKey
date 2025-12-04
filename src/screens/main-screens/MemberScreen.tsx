@@ -14,8 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { launchCamera } from "react-native-image-picker";
-import axios from "axios";
-import { API_URL } from "../../constants/Config";
+import api from "../../services/api";
 import MemberItem, { Member } from "../../components/MemberItem";
 import MemberModal from "../../components/MemberModal";
 
@@ -33,12 +32,13 @@ const MemberScreen = () => {
   const fetchMembers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/members`);
+      const response = await api.get(`/members`);
       if (Array.isArray(response.data)) {
         setUserList(response.data);
       } else {
         setUserList([]);
       }
+      console.log("Avatar URL:", response.data.map((item: Member) => item.avatar));
     } catch (err) {
       Alert.alert("Error", "Unable to load member list");
       setUserList([]);
@@ -78,7 +78,7 @@ const MemberScreen = () => {
     );
   };
 
-  // --- LOGIC CRUD ---
+  // LOGIC CRUD
   const handleSaveUser = () => {
       const isExisting = userList.find(u => u.id === selectedUser.id);
       if (isExisting) {
@@ -104,12 +104,13 @@ const MemberScreen = () => {
     });
 
     try {
-      await axios.post(`${API_URL}/members/register-face`, formData, {
+      await api.post(`/members/register-face`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       fetchMembers();
       Alert.alert("Success", "Registered Successfully");
     } catch (err) {
+      console.error("Chi tiết lỗi:", err.response?.data || err.message);
       Alert.alert("Error", "Unable to register");
     }
     setLoading(false);
@@ -130,7 +131,7 @@ const MemberScreen = () => {
     }
 
     try {
-        await axios.patch(`${API_URL}/members/update/${selectedUser.id}`, formData, {
+        await api.patch(`/members/update/${selectedUser.id}`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
         await fetchMembers();
@@ -150,7 +151,7 @@ const MemberScreen = () => {
         onPress: async () => {
           setLoading(true);
           try {
-            await axios.delete(`${API_URL}/members/delete/${userId}`);
+            await api.delete(`/members/delete/${userId}`);
             setUserList(userList.filter((user) => user.id !== userId));
             Alert.alert("Success", "Removed Successfully");
           } catch (err) {

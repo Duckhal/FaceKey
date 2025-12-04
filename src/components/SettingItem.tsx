@@ -6,8 +6,8 @@ interface SettingItemProps {
   title: string;
   icon: string;
   onPress?: () => void;
-  color?: string;       // Tùy chọn màu sắc (mặc định là trắng)
-  showChevron?: boolean; // Tùy chọn ẩn/hiện mũi tên bên phải
+  color?: string;      
+  showChevron?: boolean; 
 }
 
 const SettingItem: React.FC<SettingItemProps> = ({ 
@@ -27,7 +27,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
         <Text style={[styles.itemText, { color: color }]}>{title}</Text>
       </View>
       
-      {/* Icon mũi tên bên phải (nếu có) */}
+      {/* Icon mũi tên bên phải */}
       {showChevron && (
         <Ionicons name="chevron-forward" size={18} color="#aaa" />
       )}
