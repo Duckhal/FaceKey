@@ -4,30 +4,43 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Ionicons from "@react-native-vector-icons/ionicons";
-import { API_URL } from "../../constants/Config";
+import SettingItem from "../../components/SettingItem";
 
-const profileData = [
+interface MenuItem {
+    id: string;
+    title: string;
+    icon: string;
+    isDestructive?: boolean;
+}
+
+const profileData: MenuItem[] = [
   { id: "1", title: "Thông tin cá nhân", icon: "person-circle-outline" },
   { id: "2", title: "Thiết bị liên kết", icon: "hardware-chip-outline" },
   { id: "3", title: "Cài đặt", icon: "settings-outline" },
-  { id: "4", title: "Đăng xuất", icon: "log-out-outline" },
+  { id: "4", title: "Đăng xuất", icon: "log-out-outline", isDestructive: true },
 ];
 
 const ProfileScreen = () => {
-  const renderItem = ({ item }: any) => (
-    <TouchableOpacity style={styles.item}>
-      <View style={styles.itemContent}>
-        <Ionicons name={item.icon} size={22} color="#fff" style={styles.icon} />
-        <Text style={styles.itemText}>{item.title}</Text>
-      </View>
-      <Ionicons name="chevron-forward" size={18} color="#aaa" />
-    </TouchableOpacity>
-  );
+
+  const handlePressItem = (item: MenuItem) => {
+      if (item.id === "4") {
+          handleLogout();
+      } else {
+          console.log(`Maps to ${item.title}`);
+          // navigation.navigate(item.route);
+      }
+  };
+
+  const handleLogout = () => {
+      Alert.alert("Đăng xuất", "Bạn có chắc chắn muốn đăng xuất?", [
+          { text: "Hủy", style: "cancel" },
+          { text: "Đồng ý", style: "destructive", onPress: () => console.log("Logged out") }
+      ]);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -49,9 +62,17 @@ const ProfileScreen = () => {
       {/* List */}
       <FlatList
         data={profileData}
-        renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
+        renderItem={({ item }) => (
+            <SettingItem 
+                title={item.title}
+                icon={item.icon}
+                onPress={() => handlePressItem(item)}
+                color={item.isDestructive ? "#ff4444" : "#fff"}
+                showChevron={!item.isDestructive}
+            />
+        )}
       />
     </SafeAreaView>
   );
@@ -63,7 +84,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#121212" },
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     paddingHorizontal: 20,
     paddingTop: 15,
     paddingBottom: 10,
@@ -72,20 +93,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#333'
   },
   headerTitle: { fontSize: 18, fontWeight: "600", color: "#fff" },
-  profileInfo: { alignItems: "center", marginVertical: 20 },
-  avatar: { width: 80, height: 80, borderRadius: 40, marginBottom: 10 },
-  name: { fontSize: 18, fontWeight: "600", color: "#fff" },
+  profileInfo: { alignItems: "center", marginVertical: 30 },
+  avatar: { width: 90, height: 90, borderRadius: 45, marginBottom: 15, borderWidth: 2, borderColor: '#333' },
+  name: { fontSize: 20, fontWeight: "700", color: "#fff", marginBottom: 5 },
   email: { fontSize: 14, color: "#aaa" },
   list: { paddingHorizontal: 15 },
-  item: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#222",
-  },
-  itemContent: { flexDirection: "row", alignItems: "center" },
-  icon: { marginRight: 15 },
-  itemText: { fontSize: 16, color: "#fff" },
 });
