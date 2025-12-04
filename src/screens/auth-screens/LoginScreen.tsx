@@ -11,14 +11,8 @@ import Icon from '@react-native-vector-icons/feather';
 import { Alert } from "react-native";
 import api from "../../services/api";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-
-type AuthStackParamList = {
-  Login: undefined;
-  Register: undefined;
-  Main: undefined;
-};
+import { AuthStackParamList } from "./Layout";
 
 type LoginScreenProps = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -28,37 +22,53 @@ const LoginScreen = (props: LoginScreenProps) => {
   const [password, setPassword] = useState("");
   const [secureText, setSecureText] = useState(true);
 
-const handleLogin = async () => {
-  if (!email || !password) {
-    Alert.alert('Error', 'Please enter email and password');
-    return;
-  }
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
-  try {
-    const response = await api.post(`/auth/login`, {
-      email,
-      password,
-    });
-    const { access_token, user } = response.data;
-
-    if (access_token) {
-      await AsyncStorage.setItem('userToken', access_token);
-      await AsyncStorage.setItem('userInfo', JSON.stringify(user));
-      console.log("Login Success:", user);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
-      });
-      // navigation.navigate('Main');
-    } else {
-      Alert.alert('Login Failed', 'No access token received');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter email and password');
+      return;
     }
 
-  } catch (error) {
-    console.error("Login Error:", error);
-    Alert.alert('Login Failed', 'Invalid email or password.');
-  }
-};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+      Alert.alert('Error', 'Invalid email address. Please try again.');
+      return;
+    }
+
+    if (password.length < 8) {
+      Alert.alert('Error', 'Password must be at least 8 characters long.');
+      return;
+    }
+
+    try {
+      const response = await api.post(`/auth/login`, {
+        email,
+        password,
+      });
+      const { access_token, user } = response.data;
+
+      if (access_token) {
+        await AsyncStorage.setItem('userToken', access_token);
+        await AsyncStorage.setItem('userInfo', JSON.stringify(user));
+        console.log("Login Success:", user);
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Main' }],
+        });
+        // navigation.navigate('Main');
+      } else {
+        Alert.alert('Login Failed', 'No access token received');
+      }
+
+    } catch (error) {
+      console.error("Login Error:", error);
+      Alert.alert('Login Failed', 'Invalid email or password.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -101,7 +111,7 @@ const handleLogin = async () => {
       {/* Forgot password */}
       <TouchableOpacity 
         style={styles.forgotBtn}
-        onPress={() => navigation.navigate('Main')}>
+        onPress={() => navigation.navigate('ForgotPassword')}>
         <Text style={styles.forgotBtnText}>Forgot your password</Text>
       </TouchableOpacity>
 

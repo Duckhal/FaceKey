@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const HOST_IP = 'IP_ADDRESS_HERE'; // Replace with the server's IP address
+const HOST_IP = 'IP_ADDRESS'; // Replace with the server's IP address
 
 export const API_URL = `http://${HOST_IP}:3000`;
 export const IMAGE_URL_PREFIX = API_URL;

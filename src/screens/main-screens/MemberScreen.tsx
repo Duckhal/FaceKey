@@ -110,7 +110,7 @@ const MemberScreen = () => {
       fetchMembers();
       Alert.alert("Success", "Registered Successfully");
     } catch (err) {
-      console.error("Chi tiết lỗi:", err.response?.data || err.message);
+      console.error("Error Detail:", err.response?.data || err.message);
       Alert.alert("Error", "Unable to register");
     }
     setLoading(false);

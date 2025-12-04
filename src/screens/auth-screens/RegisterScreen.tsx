@@ -28,11 +28,28 @@ const RegisterScreen = (props: RegisterScreenProps) => {
   const [password, setPassword] = useState("");
   const [secureText, setSecureText] = useState(true);
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleRegister = async () => {
     if (!username || !email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+      Alert.alert('Error', 'Invalid email address. Please try again.');
+      return;
+    }
+
+    if (password.length < 8) {
+      Alert.alert('Error', 'Password must be at least 8 characters long.');
+      return;
+    }
+
     try {
       const response = await api.post(`/auth/register`, {
         username,

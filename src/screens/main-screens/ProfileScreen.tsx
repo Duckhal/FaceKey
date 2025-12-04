@@ -7,6 +7,8 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AuthStackParamList } from '../auth-screens/Layout';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from "@react-navigation/native";
 import SettingItem from "../../components/SettingItem";
@@ -21,7 +23,7 @@ const profileData = [
 
 const ProfileScreen = () => {
   const [userInfo, setUserInfo] = useState<any>(null);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
   useEffect(() => {
     loadProfile();
@@ -41,6 +43,16 @@ const ProfileScreen = () => {
   // Function to get the first letter of the username
   const getAvatarLetter = (username: string) => {
     return username ? username.charAt(0).toUpperCase() : "?";
+  };
+
+  const handleMenuPress = (item: any) => {
+    if (item.id === "2") {
+      navigation.navigate("Device");
+    } else if (item.isDestructive) {
+      handleLogout();
+    } else {
+      console.log("Pressed:", item.title);
+    }
   };
 
   const handleLogout = async () => {
@@ -89,7 +101,7 @@ const ProfileScreen = () => {
             <SettingItem 
                 title={item.title}
                 icon={item.icon}
-                onPress={() => item.isDestructive ? handleLogout() : console.log(item.title)}
+                onPress={() => handleMenuPress(item)}
                 color={item.isDestructive ? "#ff4444" : "#fff"}
                 showChevron={!item.isDestructive}
             />
