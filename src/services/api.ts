@@ -14,7 +14,7 @@ api.interceptors.request.use(
   async config => {
     const token = await AsyncStorage.getItem('userToken');
     console.log(`[API Request] ${config.method.toUpperCase()} ${config.url}`);
-    console.log('Token trong Storage:', token ? 'CÓ TOKEN' : 'KHÔNG CÓ TOKEN');
+    console.log('Token in Storage:', token ? 'HAS TOKEN' : 'NO TOKEN');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

@@ -13,7 +13,7 @@ import { Member } from './MemberItem';
 
 interface MemberModalProps {
   visible: boolean;
-  user: any; // Hoặc dùng Partial<Member>
+  user: any; // or use Partial<Member>
   onClose: () => void;
   onChangeName: (text: string) => void;
   onChangeRole: (text: string) => void;
@@ -44,7 +44,7 @@ const MemberModal: React.FC<MemberModalProps> = ({
       <View style={styles.modalOverlay}>
         <View style={styles.modalBox}>
           
-          {/* Nút đóng */}
+          {/* Close button */}
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
             <Ionicons name="close-outline" size={24} color="#333" />
           </TouchableOpacity>

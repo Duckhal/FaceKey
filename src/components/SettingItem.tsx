@@ -20,14 +20,9 @@ const SettingItem: React.FC<SettingItemProps> = ({
   return (
     <TouchableOpacity style={styles.item} onPress={onPress}>
       <View style={styles.itemContent}>
-        {/* Icon bên trái */}
         <Ionicons name={icon} size={22} color={color} style={styles.icon} />
-        
-        {/* Text */}
         <Text style={[styles.itemText, { color: color }]}>{title}</Text>
       </View>
-      
-      {/* Icon mũi tên bên phải */}
       {showChevron && (
         <Ionicons name="chevron-forward" size={18} color="#aaa" />
       )}

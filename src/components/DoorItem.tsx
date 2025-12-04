@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Ionicons from "@react-native-vector-icons/ionicons";
 
-// Định nghĩa kiểu dữ liệu cho 1 cánh cửa
+// Define Door interface
 export interface Door {
   id: string;
   name: string;
@@ -17,13 +17,13 @@ interface DoorItemProps {
 const DoorItem: React.FC<DoorItemProps> = ({ item, onOpen }) => {
   return (
     <View style={styles.doorItem}>
-      {/* Icon cửa */}
+      {/* Door icon */}
       <Ionicons name="home-outline" size={40} color="#7b5cff" />
       
-      {/* Tên cửa */}
+      {/* Door name */}
       <Text style={styles.doorName}>{item.name}</Text>
       
-      {/* Nút mở cửa */}
+      {/* Open button */}
       <TouchableOpacity
         style={styles.openButton}
         onPress={() => onOpen(item.id)}
