@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,71 +8,93 @@ import {
   Modal,
   TextInput,
   Alert,
-  Switch,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { useNavigation } from "@react-navigation/native";
+import * as deviceApi from "../../services/deviceApi"; // Import API
 
-// Device Type Definition
+// Định nghĩa Interface khớp với Entity Device trong Database
 interface Device {
-  id: string;
-  name: string;
-  mac: string;
-  type: "CAM" | "LOCK";
-  isOnline: boolean;
+  device_id: number;      // ID tự tăng trong DB
+  device_uid: string;     // MAC Address
+  device_name: string;    // Tên thiết bị
+  device_type: "CAM" | "LOCK";
+  created_at?: string;
+  // isOnline: boolean; // Tạm thời chưa có real-time status từ server nên sẽ mock
 }
 
 const DeviceScreen = () => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   
+  // Data State
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [loading, setLoading] = useState(false); // Loading toàn màn hình
+  const [submitting, setSubmitting] = useState(false); // Loading khi bấm nút Save
+  const [refreshing, setRefreshing] = useState(false);
+
   // Form State
   const [deviceName, setDeviceName] = useState("");
   const [deviceMac, setDeviceMac] = useState("");
   const [deviceType, setDeviceType] = useState<"CAM" | "LOCK">("CAM");
 
-  // Mock Data
-  const [devices, setDevices] = useState<Device[]>([
-    {
-      id: "1",
-      name: "Front Gate Camera",
-      mac: "24:6F:28:A1:B2:C3",
-      type: "CAM",
-      isOnline: true,
-    },
-    {
-      id: "2",
-      name: "Main Door Lock",
-      mac: "A1:B2:C3:D4:E5:F6",
-      type: "LOCK",
-      isOnline: false,
-    },
-  ]);
+  // Load devices on mount
+  useEffect(() => {
+    fetchDevices();
+  }, []);
+
+  const fetchDevices = async () => {
+    try {
+      setLoading(true);
+      const data = await deviceApi.getDevices();
+      setDevices(data);
+    } catch (error) {
+      console.error("Fetch devices error:", error);
+      Alert.alert("Error", "Unable to load devices");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchDevices();
+    setRefreshing(false);
+  };
 
   // Handle Add Device
-  const handleAddDevice = () => {
+  const handleAddDevice = async () => {
     if (!deviceName || !deviceMac) {
       Alert.alert("Error", "Please fill in all fields (Name and MAC Address)");
       return;
     }
 
-    const newDevice: Device = {
-      id: Date.now().toString(),
-      name: deviceName,
-      mac: deviceMac,
-      type: deviceType,
-      isOnline: true, // Default to true for demo
-    };
+    try {
+      setSubmitting(true);
+      // Call API to add device
+      await deviceApi.addDevice({
+        device_name: deviceName,
+        device_uid: deviceMac,
+        device_type: deviceType,
+      });
 
-    setDevices([...devices, newDevice]);
-    setModalVisible(false);
-    resetForm();
-    Alert.alert("Success", "Device linked successfully");
+      Alert.alert("Success", "Device linked successfully");
+      setModalVisible(false);
+      resetForm();
+      fetchDevices();
+    } catch (error: any) {
+      const msg = error.response?.data?.message || "Failed to add device";
+      Alert.alert("Error", msg);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Handle Delete Device
-  const handleDeleteDevice = (id: string) => {
+  const handleDeleteDevice = (id: number) => {
     Alert.alert(
       "Unlink Device",
       "Are you sure you want to remove this device?",
@@ -81,8 +103,18 @@ const DeviceScreen = () => {
         {
           text: "Remove",
           style: "destructive",
-          onPress: () => {
-            setDevices(devices.filter((dev) => dev.id !== id));
+          onPress: async () => {
+            try {
+              setLoading(true);
+              await deviceApi.deleteDevice(id);
+              // Update UI immediately
+              setDevices(devices.filter((dev) => dev.device_id !== id));
+              Alert.alert("Success", "Device removed");
+            } catch (error) {
+              Alert.alert("Error", "Failed to remove device");
+            } finally {
+              setLoading(false);
+            }
           },
         },
       ]
@@ -95,28 +127,30 @@ const DeviceScreen = () => {
     setDeviceType("CAM");
   };
 
-  // Render Item for FlatList
+  // Render Item
   const renderDeviceItem = ({ item }: { item: Device }) => (
     <View style={styles.deviceItem}>
       {/* Icon based on Type */}
-      <View style={[styles.iconContainer, item.isOnline ? styles.onlineBorder : styles.offlineBorder]}>
+      <View style={[styles.iconContainer, styles.onlineBorder]}> 
+        {/* Tạm thời để border xanh, sau này có status online sẽ check */}
         <Ionicons
-          name={item.type === "CAM" ? "videocam-outline" : "lock-closed-outline"}
+          name={item.device_type === "CAM" ? "videocam-outline" : "lock-closed-outline"}
           size={24}
           color="#fff"
         />
       </View>
 
       <View style={styles.deviceInfo}>
-        <Text style={styles.deviceName}>{item.name}</Text>
-        <Text style={styles.deviceMac}>MAC: {item.mac}</Text>
+        <Text style={styles.deviceName}>{item.device_name}</Text>
+        <Text style={styles.deviceMac}>MAC: {item.device_uid}</Text>
         <View style={styles.statusContainer}>
-            <View style={[styles.dot, { backgroundColor: item.isOnline ? '#4CAF50' : '#F44336' }]} />
-            <Text style={styles.statusText}>{item.isOnline ? "Online" : "Offline"}</Text>
+             {/* Fake status online vì chưa có logic ping */}
+            <View style={[styles.dot, { backgroundColor: '#4CAF50' }]} />
+            <Text style={styles.statusText}>Linked</Text>
         </View>
       </View>
 
-      <TouchableOpacity onPress={() => handleDeleteDevice(item.id)}>
+      <TouchableOpacity onPress={() => handleDeleteDevice(item.device_id)}>
         <Ionicons name="trash-outline" size={20} color="#ff4444" />
       </TouchableOpacity>
     </View>
@@ -136,15 +170,22 @@ const DeviceScreen = () => {
       </View>
 
       {/* Device List */}
-      <FlatList
-        data={devices}
-        keyExtractor={(item) => item.id}
-        renderItem={renderDeviceItem}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-            <Text style={styles.emptyText}>No devices linked yet.</Text>
-        }
-      />
+      {loading && !refreshing ? (
+        <ActivityIndicator size="large" color="#fff" style={{ marginTop: 50 }} />
+      ) : (
+        <FlatList
+          data={devices}
+          keyExtractor={(item) => item.device_id.toString()}
+          renderItem={renderDeviceItem}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />
+          }
+          ListEmptyComponent={
+             <Text style={styles.emptyText}>No devices linked yet.</Text>
+          }
+        />
+      )}
 
       {/* Add Device Modal */}
       <Modal
@@ -203,14 +244,20 @@ const DeviceScreen = () => {
                     setModalVisible(false);
                     resetForm();
                 }}
+                disabled={submitting}
               >
                 <Text style={styles.btnText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.btn, styles.btnSave]}
                 onPress={handleAddDevice}
+                disabled={submitting}
               >
-                <Text style={styles.btnText}>Link</Text>
+                {submitting ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                    <Text style={styles.btnText}>Link</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>

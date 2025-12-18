@@ -2,18 +2,15 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-// Các màn hình cũ
 import LoginScreen from './LoginScreen';
 import RegisterScreen from './RegisterScreen';
 import MainLayout from '../main-screens/MainLayout';
 import DeviceScreen from '../main-screens/DeviceScreen'; 
 
-// 1. IMPORT 3 MÀN HÌNH MỚI
 import ForgotPasswordScreen from './ForgotPasswordScreen';
 import VerifyOtpScreen from './VerifyOtpScreen';
 import ResetPasswordScreen from './ResetPasswordScreen';
 
-// 2. CẬP NHẬT DANH SÁCH PARAM
 export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
