@@ -1,35 +1,68 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import Ionicons from "@react-native-vector-icons/ionicons";
 
-// Define Door interface
 export interface Door {
-  id: string;
+  id: number;
+  uid: string;
   name: string;
-  //  status: 'locked' | 'unlocked'
+  hasCamera: boolean;
+  cameraUid?: string;
+  gpioPin: number;
 }
 
 interface DoorItemProps {
   item: Door;
-  onOpen: (id: string) => void;
+  onOpen: (uid: string) => void;
+  onEdit: (item: Door) => void;
+  onDelete: (id: number) => void;
 }
 
-const DoorItem: React.FC<DoorItemProps> = ({ item, onOpen }) => {
+const DoorItem: React.FC<DoorItemProps> = ({ item, onOpen, onEdit, onDelete }) => {
+  const [isOpening, setIsOpening] = useState(false);
+
+  const handleOpen = async () => {
+    setIsOpening(true);
+    try {
+      await onOpen(item.uid);
+    } finally {
+      setIsOpening(false);
+    }
+  };
+
   return (
     <View style={styles.doorItem}>
-      {/* Door icon */}
-      <Ionicons name="home-outline" size={40} color="#7b5cff" />
+      {/* Icon Cửa */}
+      <Ionicons name="home-outline" size={32} color="#7b5cff" />
       
-      {/* Door name */}
-      <Text style={styles.doorName}>{item.name}</Text>
+      {/* Thông tin Cửa */}
+      <View style={styles.infoContainer}>
+        <Text style={styles.doorName}>{item.name}</Text>
+        <Text style={styles.doorDetail}>MAC: {item.uid}</Text>
+        {item.hasCamera && <Text style={styles.doorDetail}>Cam: {item.cameraUid}</Text>}
+      </View>
       
-      {/* Open button */}
-      <TouchableOpacity
-        style={styles.openButton}
-        onPress={() => onOpen(item.id)}
-      >
-        <Text style={styles.openText}>Open</Text>
-      </TouchableOpacity>
+      {/* Nút Hành Động */}
+      <View style={styles.actionsContainer}>
+        {/* Nút Mở */}
+        <TouchableOpacity 
+            style={[styles.actionBtn, styles.openBtn]} 
+            onPress={handleOpen} 
+            disabled={isOpening}
+        >
+            {isOpening ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.openText}>Open</Text>}
+        </TouchableOpacity>
+
+        {/* Nút Sửa */}
+        <TouchableOpacity style={styles.iconBtn} onPress={() => onEdit(item)}>
+            <Ionicons name="create-outline" size={22} color="#ccc" />
+        </TouchableOpacity>
+
+        {/* Nút Xóa */}
+        <TouchableOpacity style={styles.iconBtn} onPress={() => onDelete(item.id)}>
+            <Ionicons name="trash-outline" size={22} color="#ff5c5c" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -41,22 +74,42 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#222'
+  },
+  infoContainer: {
+    flex: 1,
+    marginLeft: 12,
   },
   doorName: {
     color: "#fff",
     fontSize: 16,
-    marginLeft: 12,
-    flex: 1,
+    fontWeight: '600'
   },
-  openButton: {
-    backgroundColor: "#7b5cff",
+  doorDetail: {
+    color: "#888",
+    fontSize: 12,
+    marginTop: 2
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionBtn: {
     paddingVertical: 6,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     borderRadius: 6,
+    marginRight: 8
+  },
+  openBtn: {
+    backgroundColor: "#7b5cff",
   },
   openText: {
     color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 12,
+    fontWeight: "bold",
   },
+  iconBtn: {
+    padding: 8,
+  }
 });

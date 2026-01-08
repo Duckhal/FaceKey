@@ -33,3 +33,11 @@ export const updateDevice = async (
   const response = await api.patch(`/devices/${id}`, data);
   return response.data;
 };
+
+// 5. Send open-door command to device
+export const sendOpenDoorCommand = async (deviceUid: string) => {
+  const response = await api.post(`/recognition/open`, {
+    device_uid: deviceUid,
+  });
+  return response.data;
+};
