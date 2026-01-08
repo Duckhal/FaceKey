@@ -4,16 +4,18 @@ import Ionicons from "@react-native-vector-icons/ionicons";
 
 export interface Door {
   id: number;
-  uid: string;
+  uid: string; 
   name: string;
   hasCamera: boolean;
   cameraUid?: string;
   gpioPin: number;
+  lockDeviceId: number;
+  cameraDeviceId?: number;
 }
 
 interface DoorItemProps {
   item: Door;
-  onOpen: (uid: string) => void;
+  onOpen: (id: number) => void;
   onEdit: (item: Door) => void;
   onDelete: (id: number) => void;
 }
@@ -24,7 +26,7 @@ const DoorItem: React.FC<DoorItemProps> = ({ item, onOpen, onEdit, onDelete }) =
   const handleOpen = async () => {
     setIsOpening(true);
     try {
-      await onOpen(item.uid);
+      await onOpen(item.id);
     } finally {
       setIsOpening(false);
     }
@@ -32,19 +34,15 @@ const DoorItem: React.FC<DoorItemProps> = ({ item, onOpen, onEdit, onDelete }) =
 
   return (
     <View style={styles.doorItem}>
-      {/* Icon Cửa */}
       <Ionicons name="home-outline" size={32} color="#7b5cff" />
       
-      {/* Thông tin Cửa */}
       <View style={styles.infoContainer}>
         <Text style={styles.doorName}>{item.name}</Text>
-        <Text style={styles.doorDetail}>MAC: {item.uid}</Text>
+        <Text style={styles.doorDetail}>MAC: {item.uid} (Pin {item.gpioPin})</Text>
         {item.hasCamera && <Text style={styles.doorDetail}>Cam: {item.cameraUid}</Text>}
       </View>
       
-      {/* Nút Hành Động */}
       <View style={styles.actionsContainer}>
-        {/* Nút Mở */}
         <TouchableOpacity 
             style={[styles.actionBtn, styles.openBtn]} 
             onPress={handleOpen} 
@@ -53,12 +51,10 @@ const DoorItem: React.FC<DoorItemProps> = ({ item, onOpen, onEdit, onDelete }) =
             {isOpening ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.openText}>Open</Text>}
         </TouchableOpacity>
 
-        {/* Nút Sửa */}
         <TouchableOpacity style={styles.iconBtn} onPress={() => onEdit(item)}>
             <Ionicons name="create-outline" size={22} color="#ccc" />
         </TouchableOpacity>
 
-        {/* Nút Xóa */}
         <TouchableOpacity style={styles.iconBtn} onPress={() => onDelete(item.id)}>
             <Ionicons name="trash-outline" size={22} color="#ff5c5c" />
         </TouchableOpacity>

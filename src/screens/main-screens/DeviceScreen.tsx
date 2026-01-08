@@ -14,13 +14,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { useNavigation } from "@react-navigation/native";
-import * as deviceApi from "../../services/deviceApi"; // Import API
+import * as deviceApi from "../../services/deviceApi";
 
-// Định nghĩa Interface khớp với Entity Device trong Database
 interface Device {
-  device_id: number;      // ID tự tăng trong DB
-  device_uid: string;     // MAC Address
-  device_name: string;    // Tên thiết bị
+  device_id: number;
+  device_uid: string;
+  device_name: string;
   device_type: "CAM" | "LOCK";
   created_at?: string;
   // isOnline: boolean; // Tạm thời chưa có real-time status từ server nên sẽ mock
@@ -32,8 +31,8 @@ const DeviceScreen = () => {
   
   // Data State
   const [devices, setDevices] = useState<Device[]>([]);
-  const [loading, setLoading] = useState(false); // Loading toàn màn hình
-  const [submitting, setSubmitting] = useState(false); // Loading khi bấm nút Save
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   // Form State
@@ -200,7 +199,7 @@ const DeviceScreen = () => {
 
             <TextInput
               style={styles.input}
-              placeholder="Device Name (e.g. Living Room Cam)"
+              placeholder="Device Name"
               placeholderTextColor="#666"
               value={deviceName}
               onChangeText={setDeviceName}
